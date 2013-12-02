@@ -1,0 +1,83 @@
+<html>
+  <head>
+    <title>Temperatures at ruibm.com</title>
+    <script src="static/jquery-2.0.3.min.js"></script>
+    <script src="static/Chart.min.js"></script>
+  </head>
+  <body>
+    <h1><a href="/">Temperatures from the RaspberryPi </a></h1>
+    <p><a href="http://ruibm.com">http://ruibm.com</a></p>
+
+    % if refresh:
+      <a href="?refresh=false">Stop auto refreshing graphs</a>
+    % else:
+      <a href="?refresh=true">Auto refresh graphs</a>
+    % endif:
+
+    <form method="GET" target="self">
+      Last DateTime: <input type="text" name="last_datetime" value="${last_datetime}" size="21" />
+      <input type="submit" value="Change DateTime" />
+      <input type="hidden" name="refresh" value="${refresh}" />
+    </form>
+
+    <span style="border:1px solid rgba(200, 200, 200, 0.8); padding:5px">
+      <span style="padding:2px; font-weight:bold">Legend: </span>
+      <span style="padding:2px; background:rgba(220, 220, 220, 0.5)">RaspberryPi Temperature</span>
+      <span style="padding:2px; background:rgba(151, 187, 205, 0.5)">House Temperature</span>
+    </span>
+    
+    <h2>Temperature Per Minute (Celsius)</h2>
+    <canvas id="PerMinuteChart" width="1000" height="500"></canvas>
+
+    <h2>Temperature Per 5 Minutes (Celsius)</h2>
+    <canvas id="Per5MinutesChart" width="1000" height="500"></canvas>
+
+    <h2>Temperature Per Hour (Celsius)</h2>
+    <canvas id="PerHourChart" width="1000" height="500"></canvas>
+
+    <h2>Temperature Per Day (Celsius)</h2>
+    <canvas id="PerDayChart" width="1000" height="500"></canvas>
+
+    <script>
+
+      function update_chart(canvas_id, bucket_millis) {
+        var last_datetime = "${last_datetime}"
+        $.getJSON( "json?bucket_millis=" + bucket_millis + "&last_datetime=" + last_datetime, function(data) {
+          //Get context with jQuery - using jQuery's .get() method.
+          var ctx = $("#" + canvas_id).get(0).getContext("2d");
+          //This will get the first returned node in the jQuery collection.
+          var myNewChart = new Chart(ctx);
+          var options = {
+            scaleOverride : false,
+            //** Required if scaleOverride is true **
+            //Number - The number of steps in a hard coded scale
+            scaleSteps : 30,
+            //Number - The value jump in the hard coded scale
+            scaleStepWidth : 1,
+            //Number - The scale starting value
+            scaleStartValue : 0,
+          }
+          myNewChart.Line(data, options);
+        });
+      }
+
+      function update_all_charts() {
+        update_chart("PerMinuteChart", 60 * 1000);
+        update_chart("Per5MinutesChart", 5 * 60 * 1000);
+        update_chart("PerHourChart", 60 * 60 * 1000);
+        update_chart("PerDayChart", 24 * 60 * 60 * 1000);
+      }
+
+      // A $( document ).ready() block.
+      $( document ).ready(function() {
+        console.log( "ready!" );
+        update_all_charts();
+        % if refresh:
+        setInterval(update_all_charts, 60 * 1000);
+        % endif
+      });
+
+    </script>
+
+  </body>
+<html>

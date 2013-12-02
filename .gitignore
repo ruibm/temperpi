@@ -1,3 +1,7 @@
+# Misc generated files
+*.sqlite3
+.DS_Store
+
 # Object files
 *.o
 *.ko
