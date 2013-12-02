@@ -1,6 +1,7 @@
 # Misc generated files
 *.sqlite3
 .DS_Store
+client/TEMPer2/temper
 
 # Object files
 *.o
