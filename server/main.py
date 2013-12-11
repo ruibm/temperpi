@@ -63,7 +63,7 @@ class ServerRoot(object):
     return result
 
   def _SelectRangeFromDb(self, start_millis, last_millis):
-    POINTS_IN_GRAPH = 100
+    POINTS_IN_GRAPH = 70 
     bucket_millis = int((last_millis - start_millis) / POINTS_IN_GRAPH)
     sql = """
       SELECT

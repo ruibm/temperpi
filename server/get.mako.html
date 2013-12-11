@@ -7,8 +7,8 @@
   <body>
     <h1><a href="/">Temperatures from the RaspberryPi </a></h1>
     <ul>
-      <li><a href="https://github.com/ruibm/temperpi">https://github.com/ruibm/temperpi</a></li>
-      <li><a href="http://ruibm.com">http://ruibm.com</a></li>
+      <li><a href="https://github.com/ruibm/temperpi">This project on GitHub - temperpi</a></li>
+      <li><a href="http://ruibm.com">My homepage</a></li>
     </ul>
 
     % if refresh:
@@ -29,20 +29,23 @@
       <span style="padding:2px; background:rgba(151, 187, 205, 0.5)">House Temperature</span>
     </span>
     
-    <h2>Temperature Per Hour (Celsius)</h2>
-    <canvas id="HourChart" width="1000" height="500"></canvas>
+    <h2>Temperature 1 Hour (Celsius)</h2>
+    <canvas id="1HourChart" width="1000" height="500"></canvas>
 
-    <h2>Temperature Per Day (Celsius)</h2>
-    <canvas id="DayChart" width="1000" height="500"></canvas>
+    <h2>Temperature 1 Day (Celsius)</h2>
+    <canvas id="1DayChart" width="1000" height="500"></canvas>
 
-    <h2>Temperature Per Week (Celsius)</h2>
-    <canvas id="WeekChart" width="1000" height="500"></canvas>
+    <h2>Temperature 2 Day (Celsius)</h2>
+    <canvas id="2DayChart" width="1000" height="500"></canvas>
 
-    <h2>Temperature Per 2 Weeks (Celsius)</h2>
-    <canvas id="TwoWeekChart" width="1000" height="500"></canvas>
+    <h2>Temperature 1 Week (Celsius)</h2>
+    <canvas id="1WeekChart" width="1000" height="500"></canvas>
 
-    <h2>Temperature Per Month (Celsius)</h2>
-    <canvas id="MonthChart" width="1000" height="500"></canvas>
+    <h2>Temperature 2 Weeks (Celsius)</h2>
+    <canvas id="2WeeksChart" width="1000" height="500"></canvas>
+
+    <h2>Temperature 1 Month (Celsius)</h2>
+    <canvas id="1MonthChart" width="1000" height="500"></canvas>
 
     <script>
 
@@ -69,11 +72,12 @@
       function update_all_charts() {
         var last_millis = "${last_millis}"
         hour_in_millis = 60 * 60 * 1000
-        update_chart("HourChart", last_millis - hour_in_millis, last_millis);
-        update_chart("DayChart", last_millis - 24 * hour_in_millis, last_millis);
-        update_chart("WeekChart", last_millis - 7 * 24 * hour_in_millis, last_millis);
-        update_chart("TwoWeekChart", last_millis - 14 * 24 * hour_in_millis, last_millis);
-        update_chart("MonthChart", last_millis - 31 * 24 * 60 * 60 * 1000, last_millis);
+        update_chart("1HourChart", last_millis - hour_in_millis, last_millis);
+        update_chart("1DayChart", last_millis - 24 * hour_in_millis, last_millis);
+        update_chart("2DayChart", last_millis - 2 * 24 * hour_in_millis, last_millis);
+        update_chart("1WeekChart", last_millis - 7 * 24 * hour_in_millis, last_millis);
+        update_chart("2WeeksChart", last_millis - 14 * 24 * hour_in_millis, last_millis);
+        update_chart("1MonthChart", last_millis - 31 * 24 * 60 * 60 * 1000, last_millis);
       }
 
       // A $( document ).ready() block.
