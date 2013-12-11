@@ -6,7 +6,10 @@
   </head>
   <body>
     <h1><a href="/">Temperatures from the RaspberryPi </a></h1>
-    <p><a href="http://ruibm.com">http://ruibm.com</a></p>
+    <ul>
+      <li><a href="https://github.com/ruibm/temperpi">https://github.com/ruibm/temperpi</a></li>
+      <li><a href="http://ruibm.com">http://ruibm.com</a></li>
+    </ul>
 
     % if refresh:
       <a href="?refresh=false">Stop auto refreshing graphs</a>
@@ -26,23 +29,25 @@
       <span style="padding:2px; background:rgba(151, 187, 205, 0.5)">House Temperature</span>
     </span>
     
-    <h2>Temperature Per Minute (Celsius)</h2>
-    <canvas id="PerMinuteChart" width="1000" height="500"></canvas>
-
-    <h2>Temperature Per 5 Minutes (Celsius)</h2>
-    <canvas id="Per5MinutesChart" width="1000" height="500"></canvas>
-
     <h2>Temperature Per Hour (Celsius)</h2>
-    <canvas id="PerHourChart" width="1000" height="500"></canvas>
+    <canvas id="HourChart" width="1000" height="500"></canvas>
 
     <h2>Temperature Per Day (Celsius)</h2>
-    <canvas id="PerDayChart" width="1000" height="500"></canvas>
+    <canvas id="DayChart" width="1000" height="500"></canvas>
+
+    <h2>Temperature Per Week (Celsius)</h2>
+    <canvas id="WeekChart" width="1000" height="500"></canvas>
+
+    <h2>Temperature Per 2 Weeks (Celsius)</h2>
+    <canvas id="TwoWeekChart" width="1000" height="500"></canvas>
+
+    <h2>Temperature Per Month (Celsius)</h2>
+    <canvas id="MonthChart" width="1000" height="500"></canvas>
 
     <script>
 
-      function update_chart(canvas_id, bucket_millis) {
-        var last_datetime = "${last_datetime}"
-        $.getJSON( "json?bucket_millis=" + bucket_millis + "&last_datetime=" + last_datetime, function(data) {
+      function update_chart(canvas_id, start_millis, last_millis) {
+        $.getJSON( "json?start_millis=" + start_millis + "&last_millis=" + last_millis, function(data) {
           //Get context with jQuery - using jQuery's .get() method.
           var ctx = $("#" + canvas_id).get(0).getContext("2d");
           //This will get the first returned node in the jQuery collection.
@@ -62,10 +67,13 @@
       }
 
       function update_all_charts() {
-        update_chart("PerMinuteChart", 60 * 1000);
-        update_chart("Per5MinutesChart", 5 * 60 * 1000);
-        update_chart("PerHourChart", 60 * 60 * 1000);
-        update_chart("PerDayChart", 24 * 60 * 60 * 1000);
+        var last_millis = "${last_millis}"
+        hour_in_millis = 60 * 60 * 1000
+        update_chart("HourChart", last_millis - hour_in_millis, last_millis);
+        update_chart("DayChart", last_millis - 24 * hour_in_millis, last_millis);
+        update_chart("WeekChart", last_millis - 7 * 24 * hour_in_millis, last_millis);
+        update_chart("TwoWeekChart", last_millis - 14 * 24 * hour_in_millis, last_millis);
+        update_chart("MonthChart", last_millis - 31 * 24 * 60 * 60 * 1000, last_millis);
       }
 
       // A $( document ).ready() block.
