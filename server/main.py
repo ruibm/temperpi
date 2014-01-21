@@ -19,6 +19,13 @@ INNER_TEMPERATURE_ADJUSTMENT = -8.00
 def CurrentMillis():
   return int(time.time() * 1000)
 
+def StrDateTimeToMillis(strDateTime):
+    datetime_object = dateutil.parser.parse(strDateTime)
+    return 1000 * int(datetime_object.strftime('%s'))
+
+def MillisToStrDateTime(millis):
+  return str(datetime.datetime.fromtimestamp(millis / 1000))
+
 
 class ServerRoot(object):
   def __init__(self):
@@ -55,18 +62,20 @@ class ServerRoot(object):
       result.append(info)
     return result
 
-  def _SelectBucketsFromDb(self, bucket_millis, last_millis):
+  def _SelectRangeFromDb(self, start_millis, last_millis):
+    POINTS_IN_GRAPH = 70 
+    bucket_millis = int((last_millis - start_millis) / POINTS_IN_GRAPH)
     sql = """
       SELECT
-        CAST(timestamp / %(bucket_millis)s AS INTEGER) * %(bucket_millis)s AS ctimestamp,
+        CAST(timestamp / %(bucket_millis)d AS INTEGER) * %(bucket_millis)d AS ctimestamp,
         SUM(inner_temperature) / COUNT(*) AS cinner_temperature,
         SUM(outer_temperature) / COUNT(*) AS couter_temperature
       FROM temper_table
-      WHERE timestamp <= %(last_millis)s
-      GROUP BY CAST(timestamp / %(bucket_millis)s AS INTEGER)
+      WHERE timestamp <= %(last_millis)d and timestamp >= %(start_millis)d
+      GROUP BY CAST(timestamp / %(bucket_millis)d AS INTEGER)
       ORDER BY timestamp
-      DESC LIMIT 42;
-    """ % { "bucket_millis":bucket_millis, "last_millis":last_millis }
+      DESC LIMIT %(points_in_graph)d;
+    """ % { "bucket_millis":bucket_millis, "start_millis":start_millis, "last_millis":last_millis, "points_in_graph":POINTS_IN_GRAPH }
     return self._SelectFromDb(sql)
 
   def _HandleGet(self, args):
@@ -77,9 +86,11 @@ class ServerRoot(object):
       refresh = False
     if "last_datetime" in args:
       last_datetime = args["last_datetime"]
+      last_millis = StrDateTimeToMillis(last_datetime)
     else:
-      last_datetime = str(datetime.datetime.fromtimestamp(CurrentMillis() / 1000))
-    data = { "refresh":refresh, "last_datetime":last_datetime }
+      last_millis = CurrentMillis()
+      last_datetime = MillisToStrDateTime(last_millis)
+    data = { "refresh":refresh, "last_datetime":last_datetime, "last_millis":last_millis }
     return mytemplate.render(**data)
 
   def _HandlePost(self):
@@ -106,17 +117,13 @@ class ServerRoot(object):
 
   @cherrypy.expose
   def json(self, **args):
-    if not "bucket_millis" in args:
+    if not "start_millis" in args:
       raise cherrypy.HTTPError(400)
-    last_datetime = datetime.datetime.fromtimestamp(CurrentMillis() / 1000)
-    if "last_datetime" in args:
-      try:
-        last_datetime = dateutil.parser.parse(args["last_datetime"])
-      except:
-        self._log.error("Failed to parse date: " + args["last_datetime"])
-    last_millis = 1000 * int(last_datetime.strftime('%s'))
-    bucket_millis = args["bucket_millis"]
-    rows = self._SelectBucketsFromDb(bucket_millis, last_millis)
+    if not "last_millis" in args:
+      raise cherrypy.HTTPError(400)
+    last_millis = int(args["last_millis"])
+    start_millis = int(args["start_millis"])
+    rows = self._SelectRangeFromDb(start_millis, last_millis)
     inner = []
     outer = []
     labels = []
@@ -124,7 +131,10 @@ class ServerRoot(object):
       row = rows[i]
       outer.append(row["couter_temperature"] + OUTER_TEMPERATURE_ADJUSTMENT)
       inner.append(row["cinner_temperature"] + INNER_TEMPERATURE_ADJUSTMENT)
-      labels.append(str(datetime.datetime.fromtimestamp(row["ctimestamp"] / 1000)))
+      if len(labels) % 5 == 0 or i == 0 or i == len(labels) - 1:
+        labels.append(MillisToStrDateTime(row["ctimestamp"]))
+      else:
+        labels.append("")
     data = {
       "labels":labels,
       "datasets":({
