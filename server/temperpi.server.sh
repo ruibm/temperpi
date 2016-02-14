@@ -1,7 +1,7 @@
 #!/bin/sh
 # Starts and stops temperpi.server 
 
-TEMPERPI_SERVER_PATH=/home/ruibm/git/temperpi/server
+TEMPERPI_SERVER_PATH=/home/ruibm/Sandbox/temperpi/server
 MAIN=main.py
 PIDFILE=$MAIN.pid
 

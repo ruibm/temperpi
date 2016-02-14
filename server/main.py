@@ -13,8 +13,8 @@ import time
 from mako.template import Template
 from mako.lookup import TemplateLookup
 
-OUTER_TEMPERATURE_ADJUSTMENT = 2.50
-INNER_TEMPERATURE_ADJUSTMENT = -8.00
+OUTER_TEMPERATURE_ADJUSTMENT = 0
+INNER_TEMPERATURE_ADJUSTMENT = -9.50
 
 def CurrentMillis():
   return int(time.time() * 1000)

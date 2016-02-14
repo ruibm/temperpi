@@ -18,7 +18,7 @@
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHORS ''AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -29,7 +29,7 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 #include "comm.h"
@@ -159,7 +159,7 @@ TemperCreateFromDeviceNumber(int deviceNum, int timeout, int debug)
 			       dev->descriptor.idVendor,
 			       dev->descriptor.idProduct);
 		}
-		for(unsigned i = 0; i < ProductCount; ++i) {	
+		for(unsigned i = 0; i < ProductCount; ++i) {
 			if(dev->descriptor.idVendor == ProductList[i].vendor &&
 			   dev->descriptor.idProduct == ProductList[i].id) {
 				if(debug) {
@@ -167,7 +167,7 @@ TemperCreateFromDeviceNumber(int deviceNum, int timeout, int debug)
 				}
 				if(n == deviceNum) {
 					return TemperCreate(dev, timeout,
-							 debug, 
+							 debug,
 							 &ProductList[i]);
 				}
 				n++;
@@ -323,7 +323,7 @@ TemperGetData(Temper *t, struct TemperData *data, unsigned int count) {
 			TemperUnavailable(t, 0, &data[i]);
 		}
 	}
-	
+
 	return ret;
 }
 
