@@ -1,7 +1,17 @@
 #!/bin/sh
 # Starts and stops temperpi.server 
 
-TEMPERPI_SERVER_PATH=/home/ruibm/Sandbox/temperpi/server
+### BEGIN INIT INFO
+# Provides:          temperpi
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Example initscript
+# Description:      CherryPy WebServer for TemperPi.
+### END INIT INFO
+
+TEMPERPI_SERVER_PATH=/home/ubuntu/Sandbox/temperpi/server
 MAIN=main.py
 PIDFILE=$MAIN.pid
 
