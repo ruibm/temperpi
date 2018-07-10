@@ -14,7 +14,7 @@ from mako.template import Template
 from mako.lookup import TemplateLookup
 
 OUTER_TEMPERATURE_ADJUSTMENT = 0
-INNER_TEMPERATURE_ADJUSTMENT = -9.50
+INNER_TEMPERATURE_ADJUSTMENT = 0
 
 def CurrentMillis():
   return int(time.time() * 1000)
@@ -63,7 +63,7 @@ class ServerRoot(object):
     return result
 
   def _SelectRangeFromDb(self, start_millis, last_millis):
-    POINTS_IN_GRAPH = 70 
+    POINTS_IN_GRAPH = 70
     bucket_millis = int((last_millis - start_millis) / POINTS_IN_GRAPH)
     sql = """
       SELECT
