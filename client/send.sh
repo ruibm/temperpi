@@ -7,11 +7,14 @@ if [[ "$#" -ne 1 ]]; then
 fi
 
 SERVER_URL="$1"
+INDEX_FILE='/tmp/temperpi.index.html'
+SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
 wget \
-  --post-data "`sudo ./TEMPer2/temper`" \
+  --post-data "`sudo ${SCRIPTPATH}/TEMPer2/temper`" \
   --header="Content-Type:text/plain" \
-  --output-document index.html \
+  --output-document ${INDEX_FILE} \
   ${SERVER_URL} \
-  && cat index.html \
-  && rm index.html
+  && cat ${INDEX_FILE} \
+  && rm ${INDEX_FILE}
+exit $?
