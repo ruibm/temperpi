@@ -16,6 +16,11 @@ from mako.lookup import TemplateLookup
 OUTER_TEMPERATURE_ADJUSTMENT = 0
 INNER_TEMPERATURE_ADJUSTMENT = 0
 
+MIN_IN_MILLIS = 60 * 1000
+HOUR_IN_MILLIS = MIN_IN_MILLIS * 60
+DAY_IN_MILLIS = HOUR_IN_MILLIS * 24
+WEEK_IN_MILLIS = DAY_IN_MILLIS * 7
+
 def CurrentMillis():
   return int(time.time() * 1000)
 
@@ -24,7 +29,11 @@ def StrDateTimeToMillis(strDateTime):
     return 1000 * int(datetime_object.strftime('%s'))
 
 def MillisToStrDateTime(millis):
-  return str(datetime.datetime.fromtimestamp(millis / 1000))
+  date = datetime.datetime.fromtimestamp(int(millis / 1000))
+  return date.strftime('%Y-%m-%d %H:%M')
+
+def FloorMillisToNearestMin(millis):
+  return int(int(millis) / 60000) * 60000
 
 
 class ServerRoot(object):
@@ -32,7 +41,6 @@ class ServerRoot(object):
     self._log = logging.getLogger("ServerRoot")
     self._db = "temper.sqlite3"
     self._InitDb()
-
 
   def _DbConnection(self):
     return sqlite3.connect(self._db)
@@ -62,9 +70,23 @@ class ServerRoot(object):
       result.append(info)
     return result
 
+  def _ComputeBucketMillis(self, start_millis, last_millis):
+    delta_millis = last_millis - start_millis
+    if delta_millis <= HOUR_IN_MILLIS:
+      return MIN_IN_MILLIS
+    elif delta_millis <= 6 * HOUR_IN_MILLIS:
+      return 5 * MIN_IN_MILLIS
+    elif delta_millis <= DAY_IN_MILLIS:
+      return 15 * MIN_IN_MILLIS
+    elif delta_millis <= WEEK_IN_MILLIS:
+      return HOUR_IN_MILLIS
+    elif delta_millis <= 31 * DAY_IN_MILLIS:
+      return 6 * HOUR_IN_MILLIS
+    else:
+      return DAY_IN_MILLIS
+
   def _SelectRangeFromDb(self, start_millis, last_millis):
-    POINTS_IN_GRAPH = 70
-    bucket_millis = int((last_millis - start_millis) / POINTS_IN_GRAPH)
+    bucket_millis = self._ComputeBucketMillis(start_millis, last_millis)
     sql = """
       SELECT
         CAST(timestamp / %(bucket_millis)d AS INTEGER) * %(bucket_millis)d AS ctimestamp,
@@ -73,9 +95,8 @@ class ServerRoot(object):
       FROM temper_table
       WHERE timestamp <= %(last_millis)d and timestamp >= %(start_millis)d
       GROUP BY CAST(timestamp / %(bucket_millis)d AS INTEGER)
-      ORDER BY timestamp
-      DESC LIMIT %(points_in_graph)d;
-    """ % { "bucket_millis":bucket_millis, "start_millis":start_millis, "last_millis":last_millis, "points_in_graph":POINTS_IN_GRAPH }
+      ORDER BY timestamp;
+    """ % { "bucket_millis":bucket_millis, "start_millis":start_millis, "last_millis":last_millis }
     return self._SelectFromDb(sql)
 
   def _HandleGet(self, args):
@@ -121,35 +142,42 @@ class ServerRoot(object):
       raise cherrypy.HTTPError(400)
     if not "last_millis" in args:
       raise cherrypy.HTTPError(400)
-    last_millis = int(args["last_millis"])
-    start_millis = int(args["start_millis"])
+    last_millis = FloorMillisToNearestMin(args["last_millis"])
+    start_millis = FloorMillisToNearestMin(args["start_millis"])
     rows = self._SelectRangeFromDb(start_millis, last_millis)
+    MAX_POINTS = 100
+    assert len(rows) <= MAX_POINTS
     inner = []
     outer = []
     labels = []
-    for i in range(len(rows) - 1, -1, -1):
+    MAX_LABELS = 20
+    label_interval = max(1, int((len(rows) + 1) / MAX_LABELS))
+    print(label_interval)
+    for i in range(len(rows)):
       row = rows[i]
       outer.append(row["couter_temperature"] + OUTER_TEMPERATURE_ADJUSTMENT)
       inner.append(row["cinner_temperature"] + INNER_TEMPERATURE_ADJUSTMENT)
-      if len(labels) % 5 == 0 or i == 0 or i == len(labels) - 1:
+      if i % label_interval == 0:
         labels.append(MillisToStrDateTime(row["ctimestamp"]))
       else:
-        labels.append("")
+        labels.append('')
     data = {
       "labels":labels,
-      "datasets":({
-        'fillColor' : "rgba(220,220,220,0.5)",
-        'strokeColor' : "rgba(220,220,220,1)",
-        'pointColor' : "rgba(220,220,220,1)",
-        "pointStrokeColor":"#fff",
-        "data" : inner
-      }, {
+      "datasets":(
+      {
+      # Only plot the line for the outer temperature.
+      #   'fillColor' : "rgba(220,220,220,0.5)",
+      #   'strokeColor' : "rgba(220,220,220,1)",
+      #   'pointColor' : "rgba(220,220,220,1)",
+      #   "pointStrokeColor":"#fff",
+      #   "data" : inner
+      # }, {
         'fillColor' : "rgba(151,187,205,0.5)",
         'strokeColor' : "rgba(151,187,205,1)",
         'pointColor' : "rgba(151,187,205,1)",
         'pointStrokeColor' : "#fff",
         'data' : outer
-    })}
+    },)}
     return json.dumps(data)
 
 
