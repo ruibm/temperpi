@@ -92,7 +92,7 @@ class ServerRoot(object):
     bucket_millis = self._ComputeBucketMillis(start_millis, last_millis)
     sql = """
       SELECT
-        CAST(1 + timestamp / %(bucket_millis)d AS INTEGER) * %(bucket_millis)d AS ctimestamp,
+        CAST(1 + (timestamp / %(bucket_millis)d) AS INTEGER) * %(bucket_millis)d AS ctimestamp,
         SUM(inner_temperature) / COUNT(*) AS cinner_temperature,
         SUM(outer_temperature) / COUNT(*) AS couter_temperature
       FROM temper_table
