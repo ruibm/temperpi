@@ -3,6 +3,13 @@
     <title>Temperatures at ruibm.com</title>
     <script src="static/jquery-2.0.3.min.js"></script>
     <script src="static/Chart.bundle.min.js"></script>
+    <style>
+      .graph {
+        max-width: 800px;
+        min-width: 100px;
+        padding: 10px;
+      }
+    </style>
   </head>
   <body>
     <h1><a href="/">Temperatures from the RaspberryPi </a></h1>
@@ -30,22 +37,30 @@
     </span>
 
     <h2>Temperature 1 Day (Celsius)</h2>
-    <div><canvas id="1DayChart" width="1000" height="500"></canvas></div>
+    <div class="graph">
+      <canvas id="1DayChart" width="1000" height="500"></canvas>
+    </div>
 
     <h2>Temperature 1 Week (Celsius)</h2>
-    <div><canvas id="1WeekChart" width="1000" height="500"></canvas></div>
+    <div class="graph">
+      <canvas id="1WeekChart" width="1000" height="500"></canvas>
+    </div>
 
     <h2>Temperature 1 Month (Celsius)</h2>
-    <div><canvas id="1MonthChart" width="1000" height="500"></canvas></div>
+    <div class="graph">
+      <canvas id="1MonthChart" width="1000" height="500"></canvas>
+    </div>
 
     <h2>Temperature 1 Hour (Celsius)</h2>
-    <div><canvas id="1HourChart" width="1000" height="500"></canvas></div>
+    <div class="graph">
+      <canvas id="1HourChart" width="1000" height="500"></canvas>
+    </div>
 
     <script>
 
       function update_chart(canvas_id, start_millis, last_millis) {
         $.getJSON( "json?start_millis=" + start_millis + "&last_millis=" + last_millis, function(data) {
-          //Get context with jQuery - using jQuery's .get() method.
+          // Get context with jQuery - using jQuery's .get() method.
           var ctx = $("#" + canvas_id).get(0).getContext("2d");
           var config = {
             type: 'line',
