@@ -2,7 +2,7 @@
   <head>
     <title>Temperatures at ruibm.com</title>
     <script src="static/jquery-2.0.3.min.js"></script>
-    <script src="static/Chart.min.js"></script>
+    <script src="static/Chart.bundle.min.js"></script>
   </head>
   <body>
     <h1><a href="/">Temperatures from the RaspberryPi </a></h1>
@@ -48,18 +48,55 @@
           //Get context with jQuery - using jQuery's .get() method.
           var ctx = $("#" + canvas_id).get(0).getContext("2d");
           //This will get the first returned node in the jQuery collection.
-          var myNewChart = new Chart(ctx);
-          var options = {
-            scaleOverride : false,
-            //** Required if scaleOverride is true **
-            //Number - The number of steps in a hard coded scale
-            scaleSteps : 30,
-            //Number - The value jump in the hard coded scale
-            scaleStepWidth : 1,
-            //Number - The scale starting value
-            scaleStartValue : 0,
-          }
-          myNewChart.Line(data, options);
+          // var myNewChart = new Chart(ctx);
+          // var options = {
+          //   scaleOverride : true,
+          //   //** Required if scaleOverride is true **
+          //   //Number - The number of steps in a hard coded scale
+          //   scaleSteps : 35,
+          //   //Number - The value jump in the hard coded scale
+          //   scaleStepWidth : 1,
+          //   //Number - The scale starting value
+          //   scaleStartValue : 0,
+          // }
+          // myNewChart.Line(data, options);
+
+          var config = {
+            type: 'line',
+            data: data,
+            options: {
+              responsive: true,
+              title: {
+                display: true,
+                text: ''
+              },
+              tooltips: {
+                mode: 'index',
+                intersect: false,
+              },
+              hover: {
+                mode: 'nearest',
+                intersect: true
+              },
+              scales: {
+                xAxes: [{
+                  display: true,
+                  scaleLabel: {
+                    display: true,
+                    labelString: 'Date and Time'
+                  }
+                }],
+                yAxes: [{
+                  display: true,
+                  scaleLabel: {
+                    display: true,
+                    labelString: 'Temperature (Celsius)'
+                  }
+                }]
+              }
+            }
+          };
+          var new_chart = new Chart(ctx, config);
         });
       }
 
@@ -69,7 +106,7 @@
         update_chart("1DayChart", last_millis - 24 * hour_in_millis, last_millis);
         update_chart("1WeekChart", last_millis - 7 * 24 * hour_in_millis, last_millis);
         update_chart("1MonthChart", last_millis - 31 * 24 * 60 * 60 * 1000, last_millis);
-        update_chart("1HourChart", last_millis - hour_in_millis, last_millis);
+        update_chart("1HourChart", last_millis - 1 * hour_in_millis, last_millis);
       }
 
       // A $( document ).ready() block.

@@ -21,6 +21,9 @@ HOUR_IN_MILLIS = MIN_IN_MILLIS * 60
 DAY_IN_MILLIS = HOUR_IN_MILLIS * 24
 WEEK_IN_MILLIS = DAY_IN_MILLIS * 7
 
+def RoundToSingleDecimal(number):
+  return int(number * 10 + 0.5) / 10.0
+
 def CurrentMillis():
   return int(time.time() * 1000)
 
@@ -150,33 +153,23 @@ class ServerRoot(object):
     inner = []
     outer = []
     labels = []
-    MAX_LABELS = 20
-    label_interval = max(1, int((len(rows) + 1) / MAX_LABELS))
-    print(label_interval)
     for i in range(len(rows)):
       row = rows[i]
-      outer.append(row["couter_temperature"] + OUTER_TEMPERATURE_ADJUSTMENT)
-      inner.append(row["cinner_temperature"] + INNER_TEMPERATURE_ADJUSTMENT)
-      if i % label_interval == 0:
-        labels.append(MillisToStrDateTime(row["ctimestamp"]))
-      else:
-        labels.append('')
+      outer.append(RoundToSingleDecimal(
+          row["couter_temperature"] + OUTER_TEMPERATURE_ADJUSTMENT))
+      inner.append(RoundToSingleDecimal(
+          row["cinner_temperature"] + INNER_TEMPERATURE_ADJUSTMENT))
+      labels.append(MillisToStrDateTime(row["ctimestamp"]))
     data = {
       "labels":labels,
       "datasets":(
       {
-      # Only plot the line for the outer temperature.
-      #   'fillColor' : "rgba(220,220,220,0.5)",
-      #   'strokeColor' : "rgba(220,220,220,1)",
-      #   'pointColor' : "rgba(220,220,220,1)",
-      #   "pointStrokeColor":"#fff",
-      #   "data" : inner
-      # }, {
-        'fillColor' : "rgba(151,187,205,0.5)",
-        'strokeColor' : "rgba(151,187,205,1)",
-        'pointColor' : "rgba(151,187,205,1)",
-        'pointStrokeColor' : "#fff",
-        'data' : outer
+        'label': 'House Temperature',
+        'fill': 'bottom',
+        'backgroundColor': 'rgba(0, 255, 0, 0.1)',
+        'borderColor': 'rgba(0, 255, 0, 1)',
+        'borderWidth': '1',
+        'data' : outer,
     },)}
     return json.dumps(data)
 
