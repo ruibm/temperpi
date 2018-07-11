@@ -53,7 +53,7 @@
             options: {
               responsive: true,
               title: {
-                display: true,
+                display: false,
                 text: ''
               },
               tooltips: {
@@ -77,7 +77,10 @@
                   scaleLabel: {
                     display: true,
                     labelString: 'Temperature (Celsius)'
-                  }
+                  },
+                  ticks: {
+                    beginAtZero: false,
+                  },
                 }]
               }
             }

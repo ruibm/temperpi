@@ -159,7 +159,6 @@ class ServerRoot(object):
       inner.append(RoundToSingleDecimal(
           row["cinner_temperature"] + INNER_TEMPERATURE_ADJUSTMENT))
       labels.append(MillisToStrDateTime(row["ctimestamp"]))
-      print("rui {}-{}:{}".format(i, labels[-1], outer[-1]))
     data = {
       "labels":labels,
       "datasets":(
