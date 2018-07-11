@@ -29,9 +29,6 @@
       <span style="padding:2px; background:rgba(151, 187, 205, 0.5)">House Temperature</span>
     </span>
 
-    <h2>Temperature 3 Hours (Celsius)</h2>
-    <canvas id="3HourChart" width="1000" height="500"></canvas>
-
     <h2>Temperature 1 Day (Celsius)</h2>
     <canvas id="1DayChart" width="1000" height="500"></canvas>
 
@@ -40,6 +37,9 @@
 
     <h2>Temperature 1 Month (Celsius)</h2>
     <canvas id="1MonthChart" width="1000" height="500"></canvas>
+
+    <h2>Temperature 1 Hour (Celsius)</h2>
+    <canvas id="1HourChart" width="1000" height="500"></canvas>
 
     <script>
 
@@ -66,10 +66,10 @@
       function update_all_charts() {
         var last_millis = "${last_millis}"
         hour_in_millis = 60 * 60 * 1000
-        update_chart("3HourChart", last_millis - 3 * hour_in_millis, last_millis);
         update_chart("1DayChart", last_millis - 24 * hour_in_millis, last_millis);
         update_chart("1WeekChart", last_millis - 7 * 24 * hour_in_millis, last_millis);
         update_chart("1MonthChart", last_millis - 31 * 24 * 60 * 60 * 1000, last_millis);
+        update_chart("1HourChart", last_millis - hour_in_millis, last_millis);
       }
 
       // A $( document ).ready() block.
