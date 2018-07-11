@@ -36,27 +36,40 @@
       <span style="padding:2px; background:rgba(151, 187, 205, 0.5)">House Temperature</span>
     </span>
 
-    <h2>Temperature 1 Day (Celsius)</h2>
+    <h2>Latest Temperature: <span id="latest_temperature" /></h2>
+
+    <h3>Temperature 1 Day (Celsius)</h3>
     <div class="graph">
       <canvas id="1DayChart" width="1000" height="500"></canvas>
     </div>
 
-    <h2>Temperature 1 Week (Celsius)</h2>
+    <h3>Temperature 1 Week (Celsius)</h3>
     <div class="graph">
       <canvas id="1WeekChart" width="1000" height="500"></canvas>
     </div>
 
-    <h2>Temperature 1 Month (Celsius)</h2>
+    <h3>Temperature 1 Month (Celsius)</h3>
     <div class="graph">
       <canvas id="1MonthChart" width="1000" height="500"></canvas>
     </div>
 
-    <h2>Temperature 1 Hour (Celsius)</h2>
+    <h3>Temperature 1 Hour (Celsius)</h3>
     <div class="graph">
       <canvas id="1HourChart" width="1000" height="500"></canvas>
     </div>
 
     <script>
+
+      function update_temperature() {
+        $.getJSON("latest_temperature", function(data) {
+          var span = $("#latest_temperature");
+          if ("temperature" in data) {
+            span.text(data["temperature"] + " Celsius (" + data["date"] + ")");
+          } else {
+            span.text('');
+          }
+        });
+      }
 
       function update_chart(canvas_id, start_millis, last_millis) {
         $.getJSON( "json?start_millis=" + start_millis + "&last_millis=" + last_millis, function(data) {
@@ -111,6 +124,7 @@
         update_chart("1WeekChart", last_millis - 7 * 24 * hour_in_millis, last_millis);
         update_chart("1MonthChart", last_millis - 31 * 24 * 60 * 60 * 1000, last_millis);
         update_chart("1HourChart", last_millis - 1 * hour_in_millis, last_millis);
+        update_temperature();
       }
 
       // A $( document ).ready() block.

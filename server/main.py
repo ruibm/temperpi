@@ -139,6 +139,29 @@ class ServerRoot(object):
     raise cherrypy.HTTPError(404)
 
   @cherrypy.expose
+  def latest_temperature(self, **args):
+    sql = '''
+      SELECT
+        MAX(timestamp) AS ctimestamp,
+        inner_temperature AS cinner_temperature,
+        outer_temperature AS couter_temperature
+      FROM temper_table;
+    '''
+    rows = self._SelectFromDb(sql)
+    if len(rows) == 0:
+      return {}
+    assert len(rows) == 1
+    row = rows[0]
+    date = MillisToStrDateTime(row["ctimestamp"])
+    temperature = RoundToSingleDecimal(
+        row["couter_temperature"] + OUTER_TEMPERATURE_ADJUSTMENT)
+    data = {
+      'date': date,
+      'temperature': temperature,
+    }
+    return json.dumps(data)
+
+  @cherrypy.expose
   def json(self, **args):
     if not "start_millis" in args:
       raise cherrypy.HTTPError(400)
