@@ -9,14 +9,19 @@
         min-width: 100px;
         padding: 10px;
       }
+
+      .latest_temperature {
+      }
     </style>
   </head>
   <body>
-    <h1><a href="/">Temperatures from the RaspberryPi </a></h1>
+    <h1><a href="/">Temperature from the RaspberryPi </a></h1>
     <ul>
       <li><a href="https://github.com/ruibm/temperpi">This project on GitHub - temperpi</a></li>
       <li><a href="http://ruibm.com">My homepage</a></li>
     </ul>
+
+    <h2>Latest Temperature: <span class="latest_temperature" id="latest_temperature" /></h2>
 
     % if refresh:
       <a href="?refresh=false">Stop auto refreshing graphs</a>
@@ -29,14 +34,6 @@
       <input type="submit" value="Change DateTime" />
       <input type="hidden" name="refresh" value="${refresh}" />
     </form>
-
-    <span style="border:1px solid rgba(200, 200, 200, 0.8); padding:5px">
-      <span style="padding:2px; font-weight:bold">Legend: </span>
-      <span style="padding:2px; background:rgba(220, 220, 220, 0.5)">RaspberryPi Temperature</span>
-      <span style="padding:2px; background:rgba(151, 187, 205, 0.5)">House Temperature</span>
-    </span>
-
-    <h2>Latest Temperature: <span id="latest_temperature" /></h2>
 
     <h3>Temperature 1 Day (Celsius)</h3>
     <div class="graph">
@@ -64,7 +61,8 @@
         $.getJSON("latest_temperature", function(data) {
           var span = $("#latest_temperature");
           if ("temperature" in data) {
-            span.text(data["temperature"] + " Celsius (" + data["date"] + ")");
+            var temp = data["temperature"];
+            span.text(temp + " Celsius (" + data["date"] + ")");
           } else {
             span.text('');
           }
