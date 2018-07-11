@@ -30,16 +30,16 @@
     </span>
 
     <h2>Temperature 1 Day (Celsius)</h2>
-    <canvas id="1DayChart" width="1000" height="500"></canvas>
+    <div><canvas id="1DayChart" width="1000" height="500"></canvas></div>
 
     <h2>Temperature 1 Week (Celsius)</h2>
-    <canvas id="1WeekChart" width="1000" height="500"></canvas>
+    <div><canvas id="1WeekChart" width="1000" height="500"></canvas></div>
 
     <h2>Temperature 1 Month (Celsius)</h2>
-    <canvas id="1MonthChart" width="1000" height="500"></canvas>
+    <div><canvas id="1MonthChart" width="1000" height="500"></canvas></div>
 
     <h2>Temperature 1 Hour (Celsius)</h2>
-    <canvas id="1HourChart" width="1000" height="500"></canvas>
+    <div><canvas id="1HourChart" width="1000" height="500"></canvas></div>
 
     <script>
 
@@ -47,20 +47,6 @@
         $.getJSON( "json?start_millis=" + start_millis + "&last_millis=" + last_millis, function(data) {
           //Get context with jQuery - using jQuery's .get() method.
           var ctx = $("#" + canvas_id).get(0).getContext("2d");
-          //This will get the first returned node in the jQuery collection.
-          // var myNewChart = new Chart(ctx);
-          // var options = {
-          //   scaleOverride : true,
-          //   //** Required if scaleOverride is true **
-          //   //Number - The number of steps in a hard coded scale
-          //   scaleSteps : 35,
-          //   //Number - The value jump in the hard coded scale
-          //   scaleStepWidth : 1,
-          //   //Number - The scale starting value
-          //   scaleStartValue : 0,
-          // }
-          // myNewChart.Line(data, options);
-
           var config = {
             type: 'line',
             data: data,
@@ -83,7 +69,7 @@
                   display: true,
                   scaleLabel: {
                     display: true,
-                    labelString: 'Date and Time'
+                    labelString: 'Timestamp'
                   }
                 }],
                 yAxes: [{

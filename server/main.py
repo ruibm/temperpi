@@ -92,7 +92,7 @@ class ServerRoot(object):
     bucket_millis = self._ComputeBucketMillis(start_millis, last_millis)
     sql = """
       SELECT
-        CAST(timestamp / %(bucket_millis)d AS INTEGER) * %(bucket_millis)d AS ctimestamp,
+        CAST(1 + timestamp / %(bucket_millis)d AS INTEGER) * %(bucket_millis)d AS ctimestamp,
         SUM(inner_temperature) / COUNT(*) AS cinner_temperature,
         SUM(outer_temperature) / COUNT(*) AS couter_temperature
       FROM temper_table
@@ -125,7 +125,6 @@ class ServerRoot(object):
     inner = float(splits[1].split(" ")[0])
     outer = float(splits[2].split(" ")[0])
     timestamp = CurrentMillis()
-    print "timestamp=%d inner=%f outer=%f" % (timestamp, inner, outer)
     self._InsertIntoDb(timestamp, inner, outer)
     return "This is a POST and the body was: " + body
 
@@ -160,6 +159,7 @@ class ServerRoot(object):
       inner.append(RoundToSingleDecimal(
           row["cinner_temperature"] + INNER_TEMPERATURE_ADJUSTMENT))
       labels.append(MillisToStrDateTime(row["ctimestamp"]))
+      print("rui {}-{}:{}".format(i, labels[-1], outer[-1]))
     data = {
       "labels":labels,
       "datasets":(
