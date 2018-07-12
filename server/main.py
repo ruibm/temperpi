@@ -24,14 +24,15 @@ WEEK_IN_MILLIS = DAY_IN_MILLIS * 7
 def RoundToSingleDecimal(number):
   return int(number * 10 + 0.5) / 10.0
 
-def CurrentMillis():
-  return int(time.time() * 1000)
+def CurrentUtcMillis():
+  return int((time.time() - time.timezone) * 1000)
 
 def StrDateTimeToMillis(strDateTime):
     datetime_object = dateutil.parser.parse(strDateTime)
     return 1000 * int(datetime_object.strftime('%s'))
 
-def MillisToStrDateTime(millis):
+def MillisToStrDateTime(millis, tz_offset_minutes=0):
+  millis +=  tz_offset_minutes * MIN_IN_MILLIS
   date = datetime.datetime.fromtimestamp(int(millis / 1000))
   return date.strftime('%Y-%m-%d %H:%M')
 
@@ -112,7 +113,7 @@ class ServerRoot(object):
       last_datetime = args["last_datetime"]
       last_millis = StrDateTimeToMillis(last_datetime)
     else:
-      last_millis = CurrentMillis()
+      last_millis = CurrentUtcMillis()
       last_datetime = MillisToStrDateTime(last_millis)
     data = { "refresh":refresh, "last_datetime":last_datetime, "last_millis":last_millis }
     return mytemplate.render(**data)
@@ -124,7 +125,7 @@ class ServerRoot(object):
     splits = body.split(";")
     inner = float(splits[1].split(" ")[0])
     outer = float(splits[2].split(" ")[0])
-    timestamp = CurrentMillis()
+    timestamp = CurrentUtcMillis()
     self._InsertIntoDb(timestamp, inner, outer)
     return "This is a POST and the body was: " + body
 
@@ -169,6 +170,7 @@ class ServerRoot(object):
       raise cherrypy.HTTPError(400)
     last_millis = FloorMillisToNearestMin(args["last_millis"])
     start_millis = FloorMillisToNearestMin(args["start_millis"])
+    tz_offset_minutes = int(args["tz_offset_minutes"])
     rows = self._SelectRangeFromDb(start_millis, last_millis)
     MAX_POINTS = 100
     assert len(rows) <= MAX_POINTS
@@ -181,7 +183,7 @@ class ServerRoot(object):
           row["couter_temperature"] + OUTER_TEMPERATURE_ADJUSTMENT))
       inner.append(RoundToSingleDecimal(
           row["cinner_temperature"] + INNER_TEMPERATURE_ADJUSTMENT))
-      labels.append(MillisToStrDateTime(row["ctimestamp"]))
+      labels.append(MillisToStrDateTime(row["ctimestamp"], tz_offset_minutes))
     data = {
       "labels":labels,
       "datasets":(

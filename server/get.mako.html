@@ -59,8 +59,14 @@
 
     <script>
 
+      function get_tz_offset_minutes() {
+        return new Date().getTimezoneOffset();
+      }
+
       function update_temperature() {
-        $.getJSON("latest_temperature", function(data) {
+        var path = "latest_temperature?tz_offset_minutes=" +
+            get_tz_offset_minutes();
+        $.getJSON(path, function(data) {
           var span = $("#latest_temperature");
           if ("temperature" in data) {
             var temp = data["temperature"];
@@ -72,7 +78,10 @@
       }
 
       function update_chart(canvas_id, start_millis, last_millis) {
-        $.getJSON( "json?start_millis=" + start_millis + "&last_millis=" + last_millis, function(data) {
+        $.getJSON("json?start_millis=" + start_millis +
+                  "&last_millis=" + last_millis +
+                  "&tz_offset_minutes=" + get_tz_offset_minutes(),
+                  function(data) {
           // Get context with jQuery - using jQuery's .get() method.
           var ctx = $("#" + canvas_id).get(0).getContext("2d");
           var config = {
