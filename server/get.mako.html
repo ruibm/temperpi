@@ -6,9 +6,8 @@
     <script src="static/Chart.bundle.min.js"></script>
     <style>
       .graph {
-        max-width: 800px;
-        min-width: 100px;
-        width: 80%;
+        min-width: 600px;
+        min-height: 400px;
         padding-top: 10px;
         padding-bottom: 10px;
       }
@@ -22,9 +21,9 @@
     </style>
   </head>
   <body>
-    <h1>Most Recent:
-      <span class="latest_temperature" id="latest_temperature">loading...</span>
-    </h1>
+    <h2>
+      <span class="latest_temperature" id="latest_temperature">loading...</span><br/>
+    </h2>
 
     <div style="padding-bottom: 10px">
       % if refresh:
@@ -93,7 +92,7 @@ print("rui" + str(last_millis))
           var span = $("#latest_temperature");
           if ("temperature" in data) {
             var temp = data["temperature"];
-            span.text(temp + " Celsius (" + data["date"] + ")");
+            span.text(temp + " Celsius at " + data["date"]);
           } else {
             span.text('');
           }
