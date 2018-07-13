@@ -105,17 +105,20 @@ class ServerRoot(object):
 
   def _HandleGet(self, args):
     mytemplate = Template(filename='get.mako.html')
+    current_millis = CurrentMillis()
     if "refresh" in args and args["refresh"] == "true":
       refresh = True
     else:
       refresh = False
-    if "last_datetime" in args:
-      last_datetime = args["last_datetime"]
-      last_millis = StrDateTimeToMillis(last_datetime)
+    if "last_millis" in args:
+      last_millis = int(args["last_millis"])
     else:
-      last_millis = CurrentMillis()
-      last_datetime = MillisToStrDateTime(last_millis)
-    data = { "refresh":refresh, "last_datetime":last_datetime, "last_millis":last_millis }
+      last_millis = current_millis
+    data = {
+        "refresh":refresh,
+        "last_millis":last_millis,
+        "current_millis":current_millis,
+    }
     return mytemplate.render(**data)
 
   def _HandlePost(self):
@@ -153,7 +156,8 @@ class ServerRoot(object):
       return {}
     assert len(rows) == 1
     row = rows[0]
-    date = MillisToStrDateTime(row["ctimestamp"])
+    tz_offset_minutes = int(args["tz_offset_minutes"])
+    date = MillisToStrDateTime(row["ctimestamp"], tz_offset_minutes)
     temperature = RoundToSingleDecimal(
         row["couter_temperature"] + OUTER_TEMPERATURE_ADJUSTMENT)
     data = {
