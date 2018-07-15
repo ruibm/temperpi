@@ -83,7 +83,7 @@ class ServerRoot(object):
     elif delta_millis <= DAY_IN_MILLIS:
       return 15 * MIN_IN_MILLIS
     elif delta_millis <= WEEK_IN_MILLIS:
-      return HOUR_IN_MILLIS
+      return 2 * HOUR_IN_MILLIS
     elif delta_millis <= 31 * DAY_IN_MILLIS:
       return 6 * HOUR_IN_MILLIS
     else:
